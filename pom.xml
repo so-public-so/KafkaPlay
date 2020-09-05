@@ -1,0 +1,289 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>KafkaPlay</groupId>
+	<artifactId>KafkaPlay</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>KafkaPlay</name>
+	<description>KafkaPlay</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+
+		<scala.compat.version>2.11</scala.compat.version>
+		<scala.version>${scala.compat.version}.12</scala.version>
+		<scala-test.version>3.1.1</scala-test.version>
+		<spark.version>2.4.5</spark.version>
+		<net.alchim31.maven.version>4.4.0</net.alchim31.maven.version>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+
+		<maven-build-timestamp>${maven.build.timestamp} UTC</maven-build-timestamp>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+
+		<build-url>${env.BUILD_URL}</build-url>
+		<build-commit>${env.GIT_COMMIT}</build-commit>
+		<build-user>${env.USERNAME}</build-user>
+	</properties>
+
+
+	<dependencies>
+		<!-- Scala related -->
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scala.version}</version>
+		</dependency>
+
+		<!-- Spark related -->
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_${scala.compat.version}</artifactId>
+			<version>${spark.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>spark.jobserver</groupId>
+			<artifactId>job-server-api_${scala.compat.version}</artifactId>
+			<version>0.9.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-streaming_${scala.compat.version}</artifactId>
+			<version>${spark.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Kafka related -->
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql-kafka-0-10_${scala.compat.version}</artifactId>
+			<version>${spark.version}</version>
+		</dependency>
+
+		<!-- Avro decoding -->
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-avro_${scala.compat.version}</artifactId>
+			<version>${spark.version}</version>
+		</dependency>
+
+		<!-- Configuration utility -->
+		<dependency>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+		<!-- Testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.scalatest</groupId>
+			<artifactId>scalatest_${scala.compat.version}</artifactId>
+			<version>3.2.0-M1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src/main/scala</sourceDirectory>
+		<testSourceDirectory>src/test/scala</testSourceDirectory>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>DefaultProfile</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<finalName>${project.artifactId}</finalName>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<filtering>true</filtering>
+						<includes>
+							<include>build.properties</include>
+						</includes>
+					</resource>
+					<resource>
+						<directory>src/main/resources</directory>
+						<filtering>false</filtering>
+						<excludes>
+							<exclude>build.properties</exclude>
+						</excludes>
+					</resource>
+				</resources>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>net.alchim31.maven</groupId>
+							<artifactId>scala-maven-plugin</artifactId>
+							<version>${net.alchim31.maven.version}</version>
+						</plugin>
+
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<version>${maven-compiler-plugin.version}</version>
+							<configuration>
+								<source>${java.version}</source>
+								<target>${java.version}</target>
+							</configuration>
+						</plugin>
+
+						<plugin>
+							<groupId>org.eclipse.m2e</groupId>
+							<artifactId>lifecycle-mapping</artifactId>
+							<version>1.0.0</version>
+							<configuration>
+								<lifecycleMappingMetadata>
+									<pluginExecutions>
+										<pluginExecution>
+											<pluginExecutionFilter>
+												<groupId>net.alchim31.maven</groupId>
+												<artifactId>scala-maven-plugin</artifactId>
+												<versionRange>${net.alchim31.maven.version}</versionRange>
+												<goals>
+													<goal>add-source</goal>
+													<goal>compile</goal>
+													<goal>testCompile</goal>
+												</goals>
+											</pluginExecutionFilter>
+											<action>
+												<execute>
+													<runOnIncremental>true</runOnIncremental>
+												</execute>
+											</action>
+										</pluginExecution>
+									</pluginExecutions>
+								</lifecycleMappingMetadata>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+
+				<plugins>
+					<plugin>
+						<groupId>net.alchim31.maven</groupId>
+						<artifactId>scala-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>add-source</goal>
+									<goal>compile</goal>
+									<goal>testCompile</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<scalaVersion>${scala.version}</scalaVersion>
+							<args>
+								<arg>-dependencyfile</arg>
+								<arg>${project.build.directory}/.scala_dependencies</arg>
+							</args>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>findbugs-maven-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+						<version>3.2.0</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>shade</goal>
+								</goals>
+							</execution>
+						</executions>
+
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<!-- selectivity include the jars, else we run into the 150MiB limit 
+								in Spark service -->
+							<artifactSet>
+								<excludes>
+									<!-- Already included in runtime, don't include again -->
+									<exclude>org.scala-lang*:*</exclude>
+									<exclude>org.apache.hadoop:*</exclude>
+
+									<!-- Want org.apache.spark:spark-sql-kafka for Kafka connection, 
+										exclude already included spark runtime libraries -->
+									<exclude>org.apache.spark:spark-sql_*</exclude>
+									<exclude>org.apache.spark:spark-sketch_*</exclude>
+									<exclude>org.apache.spark:spark-core_*</exclude>
+									<exclude>org.apache.spark:spark-launcher_*</exclude>
+									<exclude>org.apache.spark:spark-kvstore_*</exclude>
+									<exclude>org.apache.spark:spark-network-*</exclude>
+									<exclude>org.apache.spark:spark-unsafe_*</exclude>
+									<exclude>org.apache.spark:spark-catalyst_*</exclude>
+									<exclude>org.apache.spark:spark-tags_*</exclude>
+									<exclude>org.apache.spark:spark-streaming-*</exclude>
+
+									<!-- Build time -->
+									<exclude>org.apache.maven*:*</exclude>
+									<exclude>org.apache.directory:*</exclude>
+									<exclude>org.apache.directory.api:*</exclude>
+									<exclude>org.apache.curator:*</exclude>
+									<exclude>org.htrace:*</exclude>
+									<exclude>org.mortbay.jetty:*</exclude>
+									<exclude>org.apache.ivy:*</exclude>
+									<exclude>org.antlr:*</exclude>
+									<exclude>org.codehaus.plexus:*</exclude>
+									<exclude>com.googlecode.junit:*</exclude>
+									<exclude>org.sonatype*:*</exclude>
+									<exclude>org.mockito:*</exclude>
+									<exclude>com.google.code.findbugs:*</exclude>
+
+									<!-- Server related -->
+									<exclude>javax.servlet:*</exclude>
+									<exclude>org.glassfish.*:*</exclude>
+									<exclude>io.netty:*</exclude>
+
+									<!-- Other unused libraries -->
+									<exclude>javax.mail:*</exclude>
+								</excludes>
+							</artifactSet>
+
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+										<exclude>META-INF/LICENSE</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>
